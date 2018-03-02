@@ -175,7 +175,7 @@ develop:
 # (only needed until travis upgrades pip to 7.x; note that the 3.5
 # environment uses pip 7.1 by default)
 	${PYTHON} -m pip install -U pip setuptools
-	${PYTHON} -m pip install --no-binary :all: -v -U --force-reinstall cffi
+	${PYTHON} -m pip install -v -U --force-reinstall cffi
 # Then start installing our deps so they can be cached. Note that use of --build-options / --global-options / --install-options
 # disables the cache.
 # We need wheel>=0.26 on Python 3.5. See previous revisions.
