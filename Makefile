@@ -51,7 +51,7 @@ test_prelim:
 	@which ${PYTHON}
 	@${PYTHON} --version
 	@${PYTHON} -c 'import greenlet; print(greenlet, greenlet.__version__)'
-	PYTHONMALLOCSTATS=1 PYTHONMALLOC=debug GEVENT_LOOP=libuv ${PYTHON} -c 'import gevent.core; print(gevent.core.loop)'
+	GEVENT_LOOP=libuv ${PYTHON} -c 'import gevent.core; print(gevent.core.loop)'
 	@${PYTHON} -c 'import gevent.ares; print(gevent.ares)'
 	@make bench
 
