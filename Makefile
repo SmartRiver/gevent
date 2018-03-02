@@ -197,7 +197,7 @@ test-py36: $(PY36)
 	PYTHON=python3.6.4 PATH=$(BUILD_RUNTIMES)/versions/python3.6.4/bin:$(PATH) make develop allbackendtest
 
 test-py37: $(PY37)
-	LD_LIBRARY_PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/openssl/lib PYTHON=python3.7.0b2 PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/bin:$(PATH) make develop allbackendtest
+	GEVENT_LOOP=libuv LD_LIBRARY_PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/openssl/lib PYTHON=python3.7.0b2 PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/bin:$(PATH) make develop basictest
 
 test-pypy: $(PYPY)
 	PYTHON=$(PYPY) PATH=$(BUILD_RUNTIMES)/versions/pypy5100/bin:$(PATH) make develop cffibackendtest

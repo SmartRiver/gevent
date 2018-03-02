@@ -22,6 +22,7 @@ libuv = _corecffi.lib
 __all__ = [
 ]
 
+from gevent.libuv import watcher as _watchers # pylint:disable=no-name-in-module
 
 class _Callbacks(AbstractCallbacks):
 
@@ -38,7 +39,7 @@ _callbacks = assign_standard_callbacks(ffi, libuv, _Callbacks,
 from gevent._ffi.loop import EVENTS
 GEVENT_CORE_EVENTS = EVENTS # export
 
-from gevent.libuv import watcher as _watchers # pylint:disable=no-name-in-module
+
 
 _events_to_str = _watchers._events_to_str # export
 
