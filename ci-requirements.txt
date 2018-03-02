@@ -16,7 +16,7 @@ prospector[with_pyroma] ; python_version < '3.7'
 coverage>=4.0
 coveralls>=1.0
 # See version requirements in setup.py
--e git+https://github.com/gevent/cffi.git#egg=cffi
+-e git+https://github.com/gevent/cffi.git@v1.11.5#egg=cffi
 futures
 dnspython
 idna
