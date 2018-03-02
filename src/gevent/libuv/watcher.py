@@ -24,7 +24,7 @@ _closing_watchers = set()
 # crash) suggesting either that we're writing on memory that doesn't
 # belong to us, somehow, or that we haven't actually lost all
 # references...
-dec = ffi.def_extern(name='_uv_close_callbackBAD')
+dec = ffi.def_extern(name='_uv_close_callback')
 print(dec)
 print(getattr(dec, '__self__', "No self"))
 _uv_close_callback = dec(_closing_watchers.remove)
