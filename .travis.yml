@@ -8,11 +8,11 @@ python:
 env:
     global:
         - BUILD_RUNTIMES=$HOME/.runtimes
-        - CC="ccache gcc"
+        #- CC="ccache gcc"
         - CCACHE_NOCPP2=true
         - CCACHE_SLOPPINESS=file_macro,time_macros,include_file_ctime,include_file_mtime
         - CCACHE_NOHASHDIR=true
-        - CFLAGS="-Ofast -pipe -fomit-frame-pointer -march=native"
+        #- CFLAGS="-Ofast -pipe -fomit-frame-pointer -march=native"
         - PYTHONTRACEMALLOC=10
         - PYTHONFAULTHANDLER=1
 

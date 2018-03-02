@@ -24,7 +24,9 @@ _closing_watchers = set()
 # crash) suggesting either that we're writing on memory that doesn't
 # belong to us, somehow, or that we haven't actually lost all
 # references...
-_uv_close_callback = ffi.def_extern(name='_uv_close_callback')(_closing_watchers.remove)
+dec = ffi.def_extern(name='_uv_close_callback')
+print(dec)
+_uv_close_callback = dec(_closing_watchers.remove)
 
 
 _events = [(libuv.UV_READABLE, "READ"),
