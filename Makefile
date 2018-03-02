@@ -51,7 +51,7 @@ test_prelim:
 	@which ${PYTHON}
 	@${PYTHON} --version
 	@${PYTHON} -c 'import greenlet; print(greenlet, greenlet.__version__)'
-	@${PYTHON} -c 'import gevent.core; print(gevent.core.loop)'
+	PYTHONMALLOCSTATS=1 PYTHONMALLOC=debug GEVENT_LOOP=libuv ${PYTHON} -c 'import gevent.core; print(gevent.core.loop)'
 	@${PYTHON} -c 'import gevent.ares; print(gevent.ares)'
 	@make bench
 
@@ -179,7 +179,7 @@ develop:
 # disables the cache.
 # We need wheel>=0.26 on Python 3.5. See previous revisions.
 	time ${PYTHON} -m pip install -U -r ci-requirements.txt
-	GEVENTSETUP_EV_VERIFY=3 time ${PYTHON} -m pip install -U -e .
+	GEVENTSETUP_EV_VERIFY=3 time ${PYTHON} -m pip install -U -e . -v
 	${PYTHON} -m pip freeze
 	ccache -s
 	@${PYTHON} scripts/travis.py fold_end install
@@ -197,7 +197,7 @@ test-py36: $(PY36)
 	PYTHON=python3.6.4 PATH=$(BUILD_RUNTIMES)/versions/python3.6.4/bin:$(PATH) make develop allbackendtest
 
 test-py37: $(PY37)
-	GEVENT_LOOP=libuv LD_LIBRARY_PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/openssl/lib PYTHON=python3.7.0b2 PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/bin:$(PATH) make develop basictest
+	LD_LIBRARY_PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/openssl/lib PYTHON=python3.7.0b2 PATH=$(BUILD_RUNTIMES)/versions/python3.7.0b2/bin:$(PATH) make develop basictest
 
 test-pypy: $(PYPY)
 	PYTHON=$(PYPY) PATH=$(BUILD_RUNTIMES)/versions/pypy5100/bin:$(PATH) make develop cffibackendtest
