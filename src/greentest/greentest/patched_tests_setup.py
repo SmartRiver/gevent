@@ -281,6 +281,10 @@ if LIBUV:
             # to gevent.libuv.watchers.timer,  where I think it is reset to 0.001.
             # Alternately, this comes right after a call to s.select(0); perhaps libuv
             # isn't reporting twice? We cache the watchers, maybe we need a new watcher?
+            # Update: This is https://github.com/gevent/gevent/issues/1127, we don't turn -1
+            # into blocking.
+            # Maybe in combo with https://github.com/gevent/gevent/issues/1126, check watchers do weird
+            # things.
             'test_selectors.PollSelectorTestCase.test_timeout',
         ]
 
