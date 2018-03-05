@@ -18,7 +18,14 @@ from greentest.sysinfo import RESOLVER_ARES
 from greentest.sysinfo import LIBUV
 from greentest import six
 
-
+# Import this while we're probably single-threaded/single-processed
+# to try to avoid issues with PyPy 5.10.
+# See https://bitbucket.org/pypy/pypy/issues/2769/systemerror-unexpected-internal-exception
+try:
+    __import__('_testcapi')
+except (ImportError, OSError, IOError):
+    # This can raise a wide variety of errors
+    pass
 
 TIMEOUT = 100
 NWORKERS = int(os.environ.get('NWORKERS') or max(cpu_count() - 1, 4))
