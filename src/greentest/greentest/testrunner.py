@@ -297,10 +297,11 @@ def main():
     parser.add_argument('--ignore')
     parser.add_argument('--discover', action='store_true')
     parser.add_argument('--full', action='store_true')
-    parser.add_argument('--config')
+    parser.add_argument('--config', default='known_failures.py')
     parser.add_argument('--failfast', action='store_true')
     parser.add_argument("--coverage", action="store_true")
-    parser.add_argument("--quiet", action="store_true")
+    parser.add_argument("--quiet", action="store_true", default=True)
+    parser.add_argument("--verbose", action="store_false", dest='quiet')
     parser.add_argument('tests', nargs='*')
     options = parser.parse_args()
     FAILING_TESTS = []
@@ -318,13 +319,7 @@ def main():
         # in this directory; makes them easier to combine and use with coverage report)
         os.environ['COVERAGE_FILE'] = os.path.abspath(".") + os.sep + ".coverage"
         print("Enabling coverage to", os.environ['COVERAGE_FILE'])
-    if options.config:
-        config = {}
-        with open(options.config) as f:
-            config_data = f.read()
-        six.exec_(config_data, config)
-        FAILING_TESTS = config['FAILING_TESTS']
-        IGNORED_TESTS = config['IGNORED_TESTS']
+
 
     if 'PYTHONWARNINGS' not in os.environ and not sys.warnoptions:
         # Enable default warnings such as ResourceWarning.
@@ -337,11 +332,30 @@ def main():
         # back on __name__ and __path__". I have no idea what that means, but it seems harmless
         # and is annoying.
         os.environ['PYTHONWARNINGS'] = 'default,ignore:::site:,ignore:::importlib._bootstrap:,ignore:::importlib._bootstrap_external:'
+
     if 'PYTHONFAULTHANDLER' not in os.environ:
         os.environ['PYTHONFAULTHANDLER'] = 'true'
 
     if 'GEVENT_DEBUG' not in os.environ:
         os.environ['GEVENT_DEBUG'] = 'debug'
+
+    if 'PYTHONTRACEMALLOC' not in os.environ:
+        os.environ['PYTHONTRACEMALLOC'] = '10'
+
+    if 'PYTHONDEVMODE' not in os.environ:
+        # Python 3.7
+        os.environ['PYTHONDEVMODE'] = '1'
+
+
+    if options.config:
+        config = {}
+        with open(options.config) as f:
+            config_data = f.read()
+        six.exec_(config_data, config)
+        FAILING_TESTS = config['FAILING_TESTS']
+        IGNORED_TESTS = config['IGNORED_TESTS']
+
+
 
     tests = discover(options.tests,
                      ignore_files=options.ignore,

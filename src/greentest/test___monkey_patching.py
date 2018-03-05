@@ -6,6 +6,7 @@ import atexit
 # subprocess: include in subprocess tests
 
 from greentest import util
+from greentest.sysinfo import PY2
 
 TIMEOUT = 120
 directory = '%s.%s' % sys.version_info[:2]
@@ -49,7 +50,11 @@ def TESTRUNNER(tests=None):
         'timeout': TIMEOUT,
         'setenv': {
             'PYTHONPATH': PYTHONPATH,
-            'GEVENT_DEBUG': 'error',
+            # debug produces resource tracking warnings for the
+            # CFFI backends. On Python 2, many of the stdlib tests
+            # rely on refcounting to close sockets so they produce
+            # lots of noise
+            'GEVENT_DEBUG': 'error' if PY2 else 'debug',
         }
     }
 

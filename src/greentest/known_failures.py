@@ -228,6 +228,14 @@ if sys.version_info[:2] >= (3, 4) and APPVEYOR:
         'FLAKY test_selectors.py'
     ]
 
+if sys.version_info == (3, 7, 0, 'beta', 2) and os.environ.get("PYTHONDEVMODE"):
+    # These crash when in devmode.
+    # See https://twitter.com/ossmkitty/status/970693025130311680
+    FAILING_TESTS += [
+        'test__monkey_sigchld_2.py',
+        'test__monkey_sigchld_3.py'
+    ]
+
 if COVERAGE:
     # The gevent concurrency plugin tends to slow things
     # down and get us past our default timeout value. These

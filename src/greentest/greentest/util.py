@@ -195,7 +195,7 @@ def run(command, **kwargs):
     assert not err
     with lock: # pylint:disable=not-context-manager
         failed = bool(result)
-        if out and (failed or verbose):
+        if out and (failed or verbose or b'ResourceWarning' in out):
             out = out.strip().decode('utf-8', 'ignore')
             if out:
                 out = '  ' + out.replace('\n', '\n  ')
