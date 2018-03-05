@@ -68,12 +68,10 @@ def TESTRUNNER(tests=None):
             util.log("Overriding %s from %s with file from %s", filename, directory, full_directory)
             continue
         yield basic_args + [filename], options.copy()
-        yield basic_args + ['--Event', filename], options.copy()
 
     options['cwd'] = full_directory
     for filename in version_tests:
         yield basic_args + [filename], options.copy()
-        yield basic_args + ['--Event', filename], options.copy()
 
 
 def main():

@@ -14,6 +14,7 @@ from greentest import util
 from greentest.util import log
 from greentest.sysinfo import RUNNING_ON_CI
 from greentest.sysinfo import PYPY
+from greentest.sysinfo import PY3
 from greentest.sysinfo import RESOLVER_ARES
 from greentest.sysinfo import LIBUV
 from greentest import six
@@ -43,11 +44,24 @@ RUN_ALONE = [
     'test__examples.py',
 ]
 
-if RUNNING_ON_CI and PYPY and LIBUV:
+if RUNNING_ON_CI:
     RUN_ALONE += [
-        # https://bitbucket.org/pypy/pypy/issues/2769/systemerror-unexpected-internal-exception
-        'test__pywsgi.py',
+        # Partial workaround for the _testcapi issue on PyPy,
+        # but also because signal delivery can sometimes be slow, and this
+        # spawn processes of its own
+        'test_signal.py',
     ]
+    if PYPY:
+        if PY3:
+            RUN_ALONE += [
+                # Sometimes shows unexpected timeouts
+                'test_socket.py',
+            ]
+        if LIBUV:
+            RUN_ALONE += [
+                # https://bitbucket.org/pypy/pypy/issues/2769/systemerror-unexpected-internal-exception
+                'test__pywsgi.py',
+            ]
 
 # tests that can't be run when coverage is enabled
 IGNORE_COVERAGE = [
@@ -79,7 +93,7 @@ def run_many(tests, configured_failing_tests=(), failfast=False, quiet=False):
     passed = {}
 
     NWORKERS = min(len(tests), NWORKERS) or 1
-    print('thread pool size:', NWORKERS, '\n')
+
     pool = ThreadPool(NWORKERS)
     util.BUFFER_OUTPUT = NWORKERS > 1
 
@@ -123,6 +137,7 @@ def run_many(tests, configured_failing_tests=(), failfast=False, quiet=False):
 
     try:
         try:
+            log("Running tests in parallel with concurrency %s" % (NWORKERS,))
             for cmd, options in tests:
                 total += 1
                 options = options or {}
@@ -133,6 +148,7 @@ def run_many(tests, configured_failing_tests=(), failfast=False, quiet=False):
             pool.close()
             pool.join()
 
+            log("Running tests marked standalone")
             for cmd, options in run_alone:
                 run_one(cmd, **options)
 
