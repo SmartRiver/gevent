@@ -20,7 +20,7 @@ from greentest import six
 
 
 
-TIMEOUT = 180
+TIMEOUT = 100
 NWORKERS = int(os.environ.get('NWORKERS') or max(cpu_count() - 1, 4))
 if NWORKERS > 10:
     NWORKERS = 10

@@ -248,8 +248,9 @@ class TestCase(greentest.TestCase):
 
     def tearDown(self):
         greentest.TestCase.tearDown(self)
-        with gevent.Timeout.start_new(0.5):
-            self.server.stop()
+        if self.server is not None:
+            with gevent.Timeout.start_new(0.5):
+                self.server.stop()
         self.server = None
 
 
