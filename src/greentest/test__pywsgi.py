@@ -199,7 +199,7 @@ read_http = Response.read
 
 
 class TestCase(greentest.TestCase):
-
+    server = None
     validator = staticmethod(validator)
     application = None
 
@@ -248,12 +248,10 @@ class TestCase(greentest.TestCase):
 
     def tearDown(self):
         greentest.TestCase.tearDown(self)
-        timeout = gevent.Timeout.start_new(0.5)
-        try:
+        with gevent.Timeout.start_new(0.5):
             self.server.stop()
-        finally:
-            timeout.close()
-        # XXX currently listening socket is kept open in gevent.wsgi
+        self.server = None
+
 
     def connect(self):
         conn = socket.create_connection((self.connect_addr, self.port))
@@ -787,9 +785,13 @@ class TestNonLatin1HeaderFromApplication(TestCase):
     header = b'\xe1\xbd\x8a3' # bomb in utf-8 bytes
     should_error = PY3 # non-native string under Py3
 
-    def init_server(self, application):
-        TestCase.init_server(self, application)
-        self.errors = list()
+    def setUp(self):
+        super(TestNonLatin1HeaderFromApplication, self).setUp()
+        self.errors = []
+
+    def tearDown(self):
+        self.errors = []
+        super(TestNonLatin1HeaderFromApplication, self).tearDown()
 
     def application(self, environ, start_response):
         # We return a header that cannot be encoded in latin-1
@@ -1287,6 +1289,11 @@ class TestLeakInput(TestCase):
     _leak_wsgi_input = None
     _leak_environ = None
 
+    def tearDown(self):
+        TestCase.tearDown(self)
+        self._leak_wsgi_input = None
+        self._leak_environ = None
+
     def application(self, environ, start_response):
         pi = environ["PATH_INFO"]
         self._leak_wsgi_input = environ["wsgi.input"]
@@ -1302,13 +1309,13 @@ class TestLeakInput(TestCase):
         fd = self.connect().makefile(bufsize=1)
         fd.write(b"GET / HTTP/1.0\r\nConnection: close\r\n\r\n")
         d = fd.read()
-        assert d.startswith(b"HTTP/1.1 200 OK"), "bad response: %r" % d
+        self.assertTrue(d.startswith(b"HTTP/1.1 200 OK"), d)
 
     def test_connection_close_leak_frame(self):
         fd = self.connect().makefile(bufsize=1)
         fd.write(b"GET /leak-frame HTTP/1.0\r\nConnection: close\r\n\r\n")
         d = fd.read()
-        assert d.startswith(b"HTTP/1.1 200 OK"), "bad response: %r" % d
+        self.assertTrue(d.startswith(b"HTTP/1.1 200 OK"), d)
         self._leak_environ.pop('_leak')
 
 class TestHTTPResponseSplitting(TestCase):
@@ -1325,6 +1332,10 @@ class TestHTTPResponseSplitting(TestCase):
         self.start_exc = None
         self.status = TestHTTPResponseSplitting.status
         self.headers = TestHTTPResponseSplitting.headers
+
+    def tearDown(self):
+        TestCase.tearDown(self)
+        self.start_exc = None
 
     def application(self, environ, start_response):
         try:
