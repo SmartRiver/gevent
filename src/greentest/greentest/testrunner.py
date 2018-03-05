@@ -33,6 +33,16 @@ NWORKERS = int(os.environ.get('NWORKERS') or max(cpu_count() - 1, 4))
 if NWORKERS > 10:
     NWORKERS = 10
 
+DEFAULT_RUN_OPTIONS = {
+    'timeout': TIMEOUT
+}
+
+# A mapping from test file basename to a dictionary of
+# options that will be applied on top of the DEFAULT_RUN_OPTIONS.
+TEST_FILE_OPTIONS = {
+
+}
+
 if RUNNING_ON_CI:
     # Too many and we get spurious timeouts
     NWORKERS = 4
@@ -52,6 +62,8 @@ if RUNNING_ON_CI:
         'test_signal.py',
     ]
     if PYPY:
+        # This often takes much longer on PyPy on CI.
+        TEST_FILE_OPTIONS['test__threadpool.py'] = {'timeout': 180}
         if PY3:
             RUN_ALONE += [
                 # Sometimes shows unexpected timeouts
@@ -197,7 +209,7 @@ def discover(tests=None, ignore_files=None,
     tests = sorted(tests)
 
     to_process = []
-    default_options = {'timeout': TIMEOUT}
+
 
     for filename in tests:
         with open(filename, 'rb') as f:
@@ -214,7 +226,9 @@ def discover(tests=None, ignore_files=None,
                 to_process.append((cmd, options))
         else:
             cmd = [sys.executable, '-u', filename]
-            to_process.append((cmd, default_options.copy()))
+            options = DEFAULT_RUN_OPTIONS.copy()
+            options.update(TEST_FILE_OPTIONS.get(filename, {}))
+            to_process.append((cmd, options))
 
     return to_process
 
